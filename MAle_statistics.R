@@ -1,13 +1,13 @@
 ###############################################################
 # GAD1 - SST co-expression by diagnosis in the DLPFC
-# Dataset: Females only
+# Dataset: males only
 #
 # Hypothesis: the association between GAD1 and SST expression
 # differs according to psychiatric diagnosis.
 #
 # Input files (from the export script):
-#   logcpm_4genen_vrouwen.csv
-#   meta_4genen_vrouwen.csv
+#   logcpm_4genen_male.csv
+#   meta_4genen_male.csv 
 ###############################################################
 
 library(tidyverse)
@@ -15,17 +15,17 @@ library(tidyverse)
 setwd("C:/Users/karen/Documents/Ugent/Academiejaar 26-27/Semester 1/Large scale analysis/project/DATA")
 
 # ---------------- SETTINGS ----------------
-gene_x <- "GAD1"      # must match the rownames in the exported file
-gene_y <- "SST"       # (use "gen1", "gen2", ... if the rownames were not renamed)
+gene_x <- "ENSG00000128683"      # GAD1
+gene_y <- "ENSG00000157005"       # SST
 ref_level  <- NULL    # control label, e.g. "control"; NULL = first level alphabetically
 covariates <- c()     # optional metadata columns, e.g. c("age", "RIN", "PMI")
-label <- "Females"
-tag   <- "vrouwen"
+label <- "males"
+tag   <- "mannen"
 # ------------------------------------------
 
 # ---- 1. Load data ----
-expr <- read.csv(paste0("logcpm_4genen_male", tag, ".csv"), row.names = 1, check.names = FALSE)
-meta <- read.csv(paste0("meta_4genen_male", tag, ".csv"), stringsAsFactors = FALSE)
+expr <- read.csv("logcpm_4genen_male.csv", row.names = 1, check.names = FALSE)
+meta <- read.csv("meta_4genen_male.csv", stringsAsFactors = FALSE)
 stopifnot(all(c(gene_x, gene_y) %in% rownames(expr)))
 
 df <- data.frame(description = colnames(expr),
@@ -48,6 +48,7 @@ p_box <- df %>%
   facet_wrap(~gene, scales = "free_y") +
   theme_bw() + theme(legend.position = "none") +
   labs(title = paste("DLPFC expression -", label))
+print(p_box)
 
 p_scatter <- ggplot(df, aes(x, y, colour = diagnosis)) +
   geom_point(alpha = 0.7, size = 2) +
@@ -55,9 +56,10 @@ p_scatter <- ggplot(df, aes(x, y, colour = diagnosis)) +
   theme_bw() +
   labs(title = paste(gene_x, "vs", gene_y, "-", label),
        x = paste(gene_x, "(logCPM)"), y = paste(gene_y, "(logCPM)"))
+print(p_scatter)
 
 p_scatter_facet <- p_scatter + facet_wrap(~diagnosis) + theme(legend.position = "none")
-
+print (p_scatter_facet)
 print(p_box); print(p_scatter); print(p_scatter_facet)
 ggsave(paste0("boxplot_", label, ".png"), p_box, width = 8, height = 5, dpi = 300)
 ggsave(paste0("scatter_", label, ".png"), p_scatter, width = 7, height = 5, dpi = 300)
